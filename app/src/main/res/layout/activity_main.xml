@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.jan.locationservices.MainActivity">
+
+    <TextView
+        android:id="@+id/textViewLong"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="80dp"
+        android:text="Longitude"
+        android:textSize="18sp"
+        tools:layout_editor_absoluteX="222dp"
+        tools:layout_editor_absoluteY="184dp"
+        android:layout_alignBaseline="@+id/textViewLat"
+        android:layout_alignBottom="@+id/textViewLat"
+        android:layout_toEndOf="@+id/textViewLat" />
+
+    <TextView
+        android:id="@+id/latVal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/textViewLat"
+        android:layout_below="@+id/textViewLat"
+        android:layout_marginTop="21dp"
+        android:textSize="18sp" />
+
+    <TextView
+        android:id="@+id/textViewLat"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Latitude"
+        android:textSize="18sp"
+        android:layout_marginTop="149dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="75dp" />
+
+    <TextView
+        android:id="@+id/lngVal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/latVal"
+        android:layout_alignBottom="@+id/latVal"
+        android:layout_alignStart="@+id/textViewLong"
+        android:textSize="18sp"
+        tools:layout_editor_absoluteX="222dp"
+        tools:layout_editor_absoluteY="184dp" />
+
+</RelativeLayout>
