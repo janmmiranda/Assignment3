@@ -9,23 +9,25 @@
         android:id="@+id/textViewLong"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="80dp"
         android:text="Longitude"
         android:textSize="18sp"
         tools:layout_editor_absoluteX="222dp"
         tools:layout_editor_absoluteY="184dp"
-        android:layout_alignBaseline="@+id/textViewLat"
-        android:layout_alignBottom="@+id/textViewLat"
-        android:layout_toEndOf="@+id/textViewLat" />
+        android:layout_alignBaseline="@+id/checkIN"
+        android:layout_alignBottom="@+id/checkIN"
+        android:layout_alignStart="@+id/textViewLat"
+        android:textAlignment="center"/>
 
     <TextView
         android:id="@+id/latVal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/textViewLat"
-        android:layout_below="@+id/textViewLat"
-        android:layout_marginTop="21dp"
-        android:textSize="18sp" />
+        android:layout_alignBaseline="@+id/textViewLat"
+        android:layout_alignBottom="@+id/textViewLat"
+        android:layout_marginStart="27dp"
+        android:layout_toEndOf="@+id/textViewLat"
+        android:textSize="18sp"
+        android:textAlignment="center"/>
 
     <TextView
         android:id="@+id/textViewLat"
@@ -33,39 +35,64 @@
         android:layout_height="wrap_content"
         android:text="Latitude"
         android:textSize="18sp"
-        android:layout_marginTop="149dp"
+        android:layout_marginTop="19dp"
         android:layout_alignParentTop="true"
         android:layout_alignParentStart="true"
-        android:layout_marginStart="75dp" />
+        android:layout_marginStart="15dp"
+        android:textAlignment="center"/>
 
     <TextView
         android:id="@+id/lngVal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/latVal"
-        android:layout_alignBottom="@+id/latVal"
-        android:layout_alignStart="@+id/textViewLong"
+        android:layout_alignBaseline="@+id/textViewLong"
+        android:layout_alignBottom="@+id/textViewLong"
+        android:layout_toEndOf="@+id/latVal"
         android:textSize="18sp"
         tools:layout_editor_absoluteX="222dp"
-        tools:layout_editor_absoluteY="184dp" />
+        tools:layout_editor_absoluteY="184dp"
+        android:textAlignment="center"/>
 
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="45dp"
         android:hint="Name"
-        android:id="@+id/editText"
-        android:layout_below="@+id/lngVal"
-        android:layout_alignStart="@+id/checkIN" />
+        android:id="@+id/etNewAddress"
+        android:layout_alignTop="@+id/latVal"
+        android:layout_alignStart="@+id/checkIN"
+        android:layout_marginStart="13dp" />
 
     <Button
         android:id="@+id/checkIN"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="57dp"
         android:onClick="onCheckIn"
         android:text="Check In"
-        android:layout_below="@+id/editText"
-        android:layout_centerHorizontal="true" />
+        android:layout_marginEnd="39dp"
+        android:layout_below="@+id/etNewAddress"
+        android:layout_alignParentEnd="true" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:orientation="vertical"
+        android:id="@+id/linearLayout">
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/linearLayout">
+
+        <ListView
+            android:id="@+id/addressList"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </LinearLayout>
 
 </RelativeLayout>
