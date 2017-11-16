@@ -49,4 +49,23 @@
         tools:layout_editor_absoluteX="222dp"
         tools:layout_editor_absoluteY="184dp" />
 
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="45dp"
+        android:hint="Name"
+        android:id="@+id/editText"
+        android:layout_below="@+id/lngVal"
+        android:layout_alignStart="@+id/checkIN" />
+
+    <Button
+        android:id="@+id/checkIN"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="57dp"
+        android:onClick="onCheckIn"
+        android:text="Check In"
+        android:layout_below="@+id/editText"
+        android:layout_centerHorizontal="true" />
+
 </RelativeLayout>

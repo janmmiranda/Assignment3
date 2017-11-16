@@ -10,14 +10,21 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.identity.intents.Address;
 import com.google.android.gms.location.FusedLocationProviderApi;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+
+import java.io.IOException;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
@@ -28,13 +35,18 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private LocationRequest locationRequest;
     private double mylongitude;
     private double mylatitude;
+    private long mytime;
     private Geocoder geocode;
+    public List<android.location.Address> myList = null;
+    DBHelper mydb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d("String", "onCreate: this runs");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mydb = new DBHelper(this);
 
         latitudeValue = (TextView) findViewById(R.id.latVal);
         longitudeValue = (TextView) findViewById(R.id.lngVal);
@@ -50,6 +62,19 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         locationRequest.setFastestInterval(5000);
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
+    }
+
+    public void onCheckIn(View v) {
+        EditText et = (EditText) findViewById(R.id.editText);
+        String name = String.valueOf(et);
+        int maxResults = 1;
+        try {
+            myList = geocode.getFromLocation(mylatitude, mylongitude, maxResults);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        mydb.insertCD(name, String.valueOf(mylongitude), String.valueOf(mylatitude), String.valueOf(mytime), String.valueOf(myList));
+        Toast.makeText(this, "Sent from " + String.valueOf(myList), Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -123,6 +148,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         Log.d("String", "onLocationChanged: this runs");
         mylatitude = location.getLatitude();
         mylongitude = location.getLongitude();
+        mytime = location.getTime();
         latitudeValue.setText(String.valueOf(mylatitude));
         longitudeValue.setText(String.valueOf(mylongitude));
     }
