@@ -10,6 +10,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import static android.R.attr.id;
+import static android.R.attr.name;
+import static com.example.jan.locationservices.R.id.add;
+import static com.example.jan.locationservices.R.id.address;
+
 /**
  * Created by Jan on 11/12/2017.
  */
@@ -18,16 +23,20 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public static final String DATABASE_NAME = "MyDBName.db";
 
-    public static final String RELATIONS_TABLE_NAME = "relations";
-    public static final String RELATIONS_COLUMN_ASSOCIATES = "associates";
+    public static final String LOCATION_TABLE_NAME = "location";
+    public static final String LOCATION_COLUMN_ID = "id";
+    public static final String LOCATION_COLUMN_NAME = "name";
+    public static final String LOCATION_COLUMN_LONGITUDE = "longitude";
+    public static final String LOCATION_COLUMN_LATITUDE = "latitude";
+    public static final String LOCATION_COLUMN_ADDRESS = "address";
+    public static final String LOCATION_COLUMN_POSTAL = "postal";
 
     public static final String COORDINATES_TABLE_NAME = "coordinates";
     public static final String COORDINATES_COLUMN_ID = "id";
-    public static final String COORDINATES_COLUMN_NAME = "name";
+    public static final String COORDINATES_COLUMN_IDLOCATION = "idLocation";
     public static final String COORDINATES_COLUMN_LONGITUDE = "longitude";
     public static final String COORDINATES_COLUMN_LATITUDE = "latitude";
     public static final String COORDINATES_COLUMN_TIME = "time";
-    public static final String COORDINATES_COLUMN_ADDRESS = "address";
 
 
 
@@ -37,85 +46,122 @@ public class DBHelper extends SQLiteOpenHelper {
         context.deleteDatabase(DATABASE_NAME);
     }
 
-    private static final String CREATE_TABLE_RELATIONS = "CREATE TABLE " + RELATIONS_TABLE_NAME +
-            " (" + COORDINATES_COLUMN_ID + " INTEGER PRIMARY KEY, " + RELATIONS_COLUMN_ASSOCIATES
-            + " TEXT)";
+    private static final String CREATE_TABLE_LOCATION = "CREATE TABLE " + LOCATION_TABLE_NAME +
+            " (" + COORDINATES_COLUMN_ID + " INTEGER PRIMARY KEY, " +
+            LOCATION_COLUMN_NAME + " TEXT," +
+            LOCATION_COLUMN_LATITUDE + " TEXT," +
+            LOCATION_COLUMN_LONGITUDE + " TEXT," +
+            LOCATION_COLUMN_ADDRESS + " TEXT," +
+            LOCATION_COLUMN_POSTAL + " TEXT)";
 
     private static final String CREATE_TABLE_COORDINATES = "CREATE TABLE " + COORDINATES_TABLE_NAME +
             " (" + COORDINATES_COLUMN_ID + " INTEGER PRIMARY KEY, " +
-            COORDINATES_COLUMN_NAME + " TEXT, " + COORDINATES_COLUMN_LONGITUDE + " TEXT, " + COORDINATES_COLUMN_LATITUDE +
-            " TEXT, " + COORDINATES_COLUMN_TIME + " TEXT, " + COORDINATES_COLUMN_ADDRESS + " TEXT)";
+            COORDINATES_COLUMN_IDLOCATION + " TEXT, " +
+            COORDINATES_COLUMN_LONGITUDE + " TEXT, " +
+            COORDINATES_COLUMN_LATITUDE + " TEXT, " +
+            COORDINATES_COLUMN_TIME + " TEXT)";
 
 
 
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(CREATE_TABLE_COORDINATES);
-        db.execSQL(CREATE_TABLE_RELATIONS);
+        db.execSQL(CREATE_TABLE_LOCATION);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion1) {
         db.execSQL("DROP TABLE IF EXISTS" +  COORDINATES_TABLE_NAME);
-        db.execSQL("DROP TABLE IF EXISTS" +  RELATIONS_TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS" +  LOCATION_TABLE_NAME);
         onCreate(db);
     }
 
-    public boolean insertCD(String name, String longitude, String latitude, String time, String address) {
+    public boolean insertCD(String idlocation, String longitude, String latitude, String time) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
-        contentValues.put("name", name);
+        contentValues.put("idLocation", idlocation);
         contentValues.put("longitude", longitude);
         contentValues.put("latitude", latitude);
         contentValues.put("time", time);
-        contentValues.put("address", address);
         db.insert("coordinates", null, contentValues);
         return true;
     }
 
-    public boolean insertRelation(String relate) {
+    public boolean insertLocation(String name, String latitude, String longitude, String address, String postal) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
-        contentValues.put("associates", relate);
+        contentValues.put("name", name);
+        contentValues.put("latitude", latitude);
+        contentValues.put("longitude", longitude);
+        contentValues.put("address", address);
+        contentValues.put("postal", postal);
+        db.insert("location", null, contentValues);
         return true;
     }
 
-    public HashMap<String, String> getCoord(int i) {
-        HashMap<String, String> coordinate = new HashMap<String, String>(2);
+    public HashMap<String, String> getLocation(int i) {
+        HashMap<String, String> location = new HashMap<String, String>(2);
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor res = db.rawQuery("select * from coordinates where id = '" + i + "'", null);
-        res.moveToFirst();
-        String name, longitude, latitude, time, address, id;
+        Cursor res = db.rawQuery("select * from location where idLocation = '" + i + "'", null);
+        String name, longitude, latitude, address, postal;
         if(res.moveToFirst()) {
             do {
-                name = res.getString(res.getColumnIndex(COORDINATES_COLUMN_NAME));
-                longitude = res.getString(res.getColumnIndex(COORDINATES_COLUMN_LONGITUDE));
-                latitude = res.getString(res.getColumnIndex(COORDINATES_COLUMN_LATITUDE));
-                time = res.getString(res.getColumnIndex(COORDINATES_COLUMN_TIME));
-                address = res.getString(res.getColumnIndex(COORDINATES_COLUMN_ADDRESS));
-                coordinate.put("name", name);
-                coordinate.put("longitude", longitude);
-                coordinate.put("latitude", latitude);
-                coordinate.put("time", time);
-                coordinate.put("address", address);
+                name = res.getString(res.getColumnIndex(LOCATION_COLUMN_NAME));
+                longitude = res.getString(res.getColumnIndex(LOCATION_COLUMN_LONGITUDE));
+                latitude = res.getString(res.getColumnIndex(LOCATION_COLUMN_LATITUDE));
+                address = res.getString(res.getColumnIndex(LOCATION_COLUMN_ADDRESS));
+                postal = res.getString(res.getColumnIndex(LOCATION_COLUMN_POSTAL));
+                location.put("name", name);
+                location.put("longitude", longitude);
+                location.put("latitude", latitude);
+                location.put("address", address);
+                location.put("postal", postal);
             } while(res.moveToNext());
         }
-        return coordinate;
+        return location;
     }
+
+    public ArrayList<Map<String, String>> getAllLocations() {
+        ArrayList<Map<String, String>> array_List = new ArrayList<Map<String, String>>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor res = db.rawQuery( "select * from location", null);
+        res.moveToFirst();
+        String id, name, longitude, latitude, address, postal;
+        while(res.isAfterLast() == false) {
+            HashMap<String, String> location = new HashMap<String, String>(2);
+            id = res.getString(res.getColumnIndex(LOCATION_COLUMN_ID));
+            name = res.getString(res.getColumnIndex(LOCATION_COLUMN_NAME));
+            longitude = res.getString(res.getColumnIndex(LOCATION_COLUMN_LONGITUDE));
+            latitude = res.getString(res.getColumnIndex(LOCATION_COLUMN_LATITUDE));
+            address = res.getString(res.getColumnIndex(LOCATION_COLUMN_ADDRESS));
+            postal = res.getString(res.getColumnIndex(LOCATION_COLUMN_POSTAL));
+            location.put("id", id);
+            location.put("name", name);
+            location.put("longitude", longitude);
+            location.put("latitude", latitude);
+            location.put("address", address);
+            location.put("postal", postal);
+            array_List.add(location);
+            res.moveToNext();
+        }
+        return array_List;
+    }
+
+    // SELECT * FROM coordinates c JOIN location l ON l.id = c.location_id
 
     public ArrayList<Map<String, String>> getAllCoords() {
         ArrayList<Map<String, String>> array_List = new ArrayList<Map<String, String>>();
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor res = db.rawQuery( "select * from coordinates", null);
+        Cursor res = db.rawQuery( "select * from coordinates c join location l on l.id = c.idLocation", null);
         res.moveToFirst();
-        String name, longitude, latitude, time, address, id;
+        String name, longitude, latitude, time, address;
         while(res.isAfterLast() == false) {
             HashMap<String, String> coordinates = new HashMap<String, String>(2);
-            name = res.getString(res.getColumnIndex(COORDINATES_COLUMN_NAME));
+            name = res.getString(res.getColumnIndex(LOCATION_COLUMN_NAME));
             longitude = res.getString(res.getColumnIndex(COORDINATES_COLUMN_LONGITUDE));
             latitude = res.getString(res.getColumnIndex(COORDINATES_COLUMN_LATITUDE));
             time = res.getString(res.getColumnIndex(COORDINATES_COLUMN_TIME));
-            address = res.getString(res.getColumnIndex(COORDINATES_COLUMN_ADDRESS));
+            address = res.getString(res.getColumnIndex(LOCATION_COLUMN_ADDRESS));
             coordinates.put("name", name);
             coordinates.put("longitude", longitude);
             coordinates.put("latitude", latitude);

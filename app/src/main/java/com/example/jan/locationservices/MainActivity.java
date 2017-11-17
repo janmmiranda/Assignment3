@@ -51,7 +51,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     String[] from = {"name", "time", "longitude", "latitude", "address"};
     int[] to = {R.id.addrName, R.id.addrTime, R.id.addrLong, R.id.addrLat, R.id.address};
     DBHelper mydb;
-    int addrCount = 1;
+    int idlocation;
+    ArrayList<Map<String, String>> locations;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +61,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mydb = new DBHelper(this);
+
+        locations = new ArrayList<Map<String, String>>();
 
         addressList = (ListView) findViewById(R.id.addressList);
         addresses = mydb.getAllCoords();
@@ -83,46 +87,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     }
 
-    private boolean checkDistance() {
-        if (addrCount < 2) {
-            return false;
-        } else {
-            int temp = addrCount;
-            while (temp >= 1) {
-                HashMap<String, String> coord1 = new HashMap<String, String>(2);
-                coord1 = mydb.getCoord(addrCount);
-                if(distanceChecker(coord1)) {
-                    return true;
-                }
-                temp--;
-            }
-        }
-        return false;
-    }
 
-    private boolean distanceChecker(HashMap coord1) {
-        long lat1 = (long) coord1.get("latitude");
-        long lat2 = (long) mylatitude;
-        long lng1 = (long) coord1.get("longitude");
-        long lng2 = (long) mylongitude;
 
-        double varR = 6371e3;
-        double var1 = Math.toRadians(lat1);
-        double var2 = Math.toRadians(lat2);
-        double var3 = Math.toRadians(lat2 - lat1);
-        double var4 = Math.toRadians(lng2 - lng1);
 
-        double varA = Math.sin(var3/var2) * Math.sin(var3/var2) +
-                Math.cos(var1) * Math.cos(var2) * Math.sin(var4/2) * Math.sin(var4/2);
-        double varC = 2 * Math.atan2(Math.sqrt(varA), Math.sqrt(varA));
-        double varD = varR * varC;
-
-        if(varD/1000 <= 30) {
-            return true;
-        }
-
-        return false;
-    }
 
     private Address getAddress() {
         try {
@@ -136,24 +103,84 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             return null;
     }
 
+    private double distanceChecker(Map coord1) {
+        double lat1 = Math.abs(Double.parseDouble(String.valueOf(coord1.get("latitude"))));
+        double lat2 = Math.abs(mylatitude);
+        double lng1 = Math.abs(Double.parseDouble(String.valueOf(coord1.get("longitude"))));
+        double lng2 = Math.abs(mylongitude);
+
+        double varR = 6371e3;
+        double var1 = Math.toRadians(lat1);
+        double var2 = Math.toRadians(lat2);
+        double var3 = Math.toRadians(lat2 - lat1);
+        double var4 = Math.toRadians(lng2 - lng1);
+
+        double varA = Math.sin(var3/var2) * Math.sin(var3/var2) +
+                Math.cos(var1) * Math.cos(var2) * Math.sin(var4/2) * Math.sin(var4/2);
+        double varC = 2 * Math.atan2(Math.sqrt(varA), Math.sqrt(varA));
+        double varD = varR * varC;
+
+        return varD/1000;
+    }
+    private int findShortest (ArrayList<Map<String, String>> locations) {
+        int size = locations.size();
+        double shortest = Double.MAX_VALUE;
+        int shortestId = -1;
+        double temp;
+
+        while(size > 0){
+            Map<String, String> tempLocation = locations.get(size - 1);
+            temp = distanceChecker(tempLocation);
+            if (temp < shortest) {
+                shortest = temp;
+                shortestId = Integer.parseInt(tempLocation.get("id"));
+            }
+            size--;
+        }
+        Toast.makeText(this, "distance is " + shortest, Toast.LENGTH_LONG).show();
+        if(shortest < 30){
+            return shortestId;
+        } else {
+            return -1;
+        }
+    }
+
     public void onCheckIn(View v) {
         EditText et = (EditText) findViewById(R.id.etNewAddress);
         String name = et.getText().toString();
         Address tempAddress = getAddress();
-        String address = String.valueOf(tempAddress.getLocality());
-        mydb.insertCD(name, String.valueOf(mylongitude), String.valueOf(mylatitude), String.valueOf(mytime), address);
+
+        String address, postal;
+        if(tempAddress.getLocality() == null) {
+            address = "n/a";
+        } else {
+            address = String.valueOf(tempAddress.getLocality());
+        }
+        if(tempAddress.getAddressLine(0) == null) {
+            postal = "n/a";
+        } else {
+            postal = String.valueOf(tempAddress.getAddressLine(0));
+        }
+        locations = mydb.getAllLocations();
+        int idDistance = findShortest(locations);
+
+        if(idDistance > 0) {
+            mydb.insertCD(String.valueOf(idDistance),String.valueOf(mylongitude),String.valueOf(mylatitude),String.valueOf(mytime));
+        } else {
+            mydb.insertLocation(name, String.valueOf(mylongitude), String.valueOf(mylatitude), address, postal);
+            ArrayList<Map<String, String>> locations = mydb.getAllLocations();
+            String size = String.valueOf(locations.size());
+            mydb.insertCD(size, String.valueOf(mylongitude), String.valueOf(mylatitude), String.valueOf(mytime));
+            Toast.makeText(this, "Sent, size of " + size, Toast.LENGTH_LONG).show();
+        }
 
         addresses = mydb.getAllCoords();
         addressAdapter = new SimpleAdapter(this, addresses, R.layout.list_viewadater, from, to);
         addressList.setAdapter(addressAdapter);
 
-//        if(checkDistance()) {
-//
-//        }
-        //checkDistance();
+
         et.setText("");
-        addrCount++;
-        Toast.makeText(this, "Sent at " + String.valueOf(mytime), Toast.LENGTH_LONG).show();
+
     }
 
     @Override
