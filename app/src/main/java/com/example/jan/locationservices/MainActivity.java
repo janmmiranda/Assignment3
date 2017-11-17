@@ -25,6 +25,7 @@ import com.google.android.gms.location.FusedLocationProviderApi;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.model.LatLng;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -51,7 +52,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     String[] from = {"name", "time", "longitude", "latitude", "address"};
     int[] to = {R.id.addrName, R.id.addrTime, R.id.addrLong, R.id.addrLat, R.id.address};
     DBHelper mydb;
-    int idlocation;
     ArrayList<Map<String, String>> locations;
 
 
@@ -88,9 +88,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     }
 
 
-
-
-
     private Address getAddress() {
         try {
             myAddress = mylocation.getFromLocation(mylatitude, mylongitude, 1);
@@ -103,46 +100,74 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             return null;
     }
 
-    private double distanceChecker(Map coord1) {
+    public double CalculationByDistance(Map coord1) {
+        int Radius = 6371;// radius of earth in Km
         double lat1 = Math.abs(Double.parseDouble(String.valueOf(coord1.get("latitude"))));
         double lat2 = Math.abs(mylatitude);
-        double lng1 = Math.abs(Double.parseDouble(String.valueOf(coord1.get("longitude"))));
-        double lng2 = Math.abs(mylongitude);
+        double lon1 = Math.abs(Double.parseDouble(String.valueOf(coord1.get("longitude"))));
+        double lon2 = Math.abs(mylongitude);
 
-        double varR = 6371e3;
-        double var1 = Math.toRadians(lat1);
-        double var2 = Math.toRadians(lat2);
-        double var3 = Math.toRadians(lat2 - lat1);
-        double var4 = Math.toRadians(lng2 - lng1);
+        double dLat = Math.toRadians(lat2 - lat1);
+        double dLon = Math.toRadians(lon2 - lon1);
+        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+                + Math.cos(Math.toRadians(lat1))
+                * Math.cos(Math.toRadians(lat2)) * Math.sin(dLon / 2)
+                * Math.sin(dLon / 2);
+        double c = 2 * Math.asin(Math.sqrt(a));
+        double valueResult = Radius * c;
+        double km = valueResult / 1;
+        double meter = valueResult % 1000;
 
-        double varA = Math.sin(var3/var2) * Math.sin(var3/var2) +
-                Math.cos(var1) * Math.cos(var2) * Math.sin(var4/2) * Math.sin(var4/2);
-        double varC = 2 * Math.atan2(Math.sqrt(varA), Math.sqrt(varA));
-        double varD = varR * varC;
-
-        return varD/1000;
+        return  meter;
     }
+
+    private double distanceChecker(Map coord1) {
+        double lat1 = Double.parseDouble(String.valueOf(coord1.get("latitude")));
+        double lat2 = mylatitude;
+        double lng1 = Double.parseDouble(String.valueOf(coord1.get("longitude")));
+        double lng2 = mylongitude;
+
+        Log.d("values", lat1 + ", " + lng1 + ": " + lat2 + ", " + lng2);
+        float results[] = new float[1];
+        LatLng oldPosition = new LatLng(lat1,lng1);
+        LatLng newPosition = new LatLng(lat2, lng2);
+        try {
+            Location.distanceBetween(oldPosition.latitude, oldPosition.longitude,
+                    newPosition.latitude, newPosition.longitude, results);
+        } catch (IllegalArgumentException e) {
+            Log.d("error", "Error is " + e);
+        }
+
+
+        return (double) results[0];
+    }
+
     private int findShortest (ArrayList<Map<String, String>> locations) {
         int size = locations.size();
         double shortest = Double.MAX_VALUE;
         int shortestId = -1;
+        int tempId = shortestId;
         double temp;
 
-        while(size > 0){
-            Map<String, String> tempLocation = locations.get(size - 1);
-            temp = distanceChecker(tempLocation);
-            if (temp < shortest) {
-                shortest = temp;
-                shortestId = Integer.parseInt(tempLocation.get("id"));
-            }
-            size--;
-        }
-        Toast.makeText(this, "distance is " + shortest, Toast.LENGTH_LONG).show();
-        if(shortest < 30){
-            return shortestId;
-        } else {
+        if(size < 1){
             return -1;
+        } else {
+            while(size > 0) {
+                Map<String, String> tempLocation = locations.get(size - 1);
+                temp = distanceChecker(tempLocation);
+                Log.d("asd", "the distance value is " + temp);
+                if (temp < shortest) {
+                    shortest = temp;
+                    tempId = Integer.parseInt(tempLocation.get("id"));
+
+                }
+                size--;
+            }
+            if (shortest < 30) {
+                shortestId = tempId;
+            }
         }
+        return shortestId;
     }
 
     public void onCheckIn(View v) {
@@ -151,27 +176,28 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         Address tempAddress = getAddress();
 
         String address, postal;
-        if(tempAddress.getLocality() == null) {
+        if(tempAddress == null) {
             address = "n/a";
-        } else {
-            address = String.valueOf(tempAddress.getLocality());
-        }
-        if(tempAddress.getAddressLine(0) == null) {
             postal = "n/a";
         } else {
+            address = String.valueOf(tempAddress.getLocality());
             postal = String.valueOf(tempAddress.getAddressLine(0));
+
         }
+
         locations = mydb.getAllLocations();
+        String size = String.valueOf(locations.size());
+
         int idDistance = findShortest(locations);
+        //Toast.makeText(this, "id is " + idDistance, Toast.LENGTH_LONG).show();
 
         if(idDistance > 0) {
             mydb.insertCD(String.valueOf(idDistance),String.valueOf(mylongitude),String.valueOf(mylatitude),String.valueOf(mytime));
         } else {
-            mydb.insertLocation(name, String.valueOf(mylongitude), String.valueOf(mylatitude), address, postal);
+            mydb.insertLocation(name, String.valueOf(mylatitude), String.valueOf(mylongitude), address, postal);
             ArrayList<Map<String, String>> locations = mydb.getAllLocations();
-            String size = String.valueOf(locations.size());
-            mydb.insertCD(size, String.valueOf(mylongitude), String.valueOf(mylatitude), String.valueOf(mytime));
-            Toast.makeText(this, "Sent, size of " + size, Toast.LENGTH_LONG).show();
+            String newSize = String.valueOf(locations.size());
+            mydb.insertCD(newSize, String.valueOf(mylongitude), String.valueOf(mylatitude), String.valueOf(mytime));
         }
 
         addresses = mydb.getAllCoords();
