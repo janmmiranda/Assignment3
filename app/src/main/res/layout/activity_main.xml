@@ -13,10 +13,10 @@
         android:textSize="18sp"
         tools:layout_editor_absoluteX="222dp"
         tools:layout_editor_absoluteY="184dp"
+        android:textAlignment="center"
         android:layout_alignBaseline="@+id/checkIN"
         android:layout_alignBottom="@+id/checkIN"
-        android:layout_alignStart="@+id/textViewLat"
-        android:textAlignment="center"/>
+        android:layout_alignStart="@+id/textViewLat" />
 
     <TextView
         android:id="@+id/latVal"
@@ -41,18 +41,6 @@
         android:layout_marginStart="15dp"
         android:textAlignment="center"/>
 
-    <TextView
-        android:id="@+id/lngVal"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/textViewLong"
-        android:layout_alignBottom="@+id/textViewLong"
-        android:layout_toEndOf="@+id/latVal"
-        android:textSize="18sp"
-        tools:layout_editor_absoluteX="222dp"
-        tools:layout_editor_absoluteY="184dp"
-        android:textAlignment="center"/>
-
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -72,13 +60,22 @@
         android:layout_below="@+id/etNewAddress"
         android:layout_alignParentEnd="true" />
 
+    <TextView
+        android:id="@+id/lngVal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:layout_alignBaseline="@+id/textViewLong"
+        android:layout_alignBottom="@+id/textViewLong"
+        android:layout_toEndOf="@+id/latVal" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="120dp"
-        android:orientation="vertical"
-        android:id="@+id/linearLayout"
         android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true">
+        android:layout_centerHorizontal="true"
+        android:orientation="vertical"
+        android:id="@+id/linearLayout2">
 
     </LinearLayout>
 
@@ -86,8 +83,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@+id/linearLayout">
+        android:layout_alignParentEnd="true"
+        android:layout_below="@+id/linearLayout2">
 
         <ListView
             android:id="@+id/addressList"

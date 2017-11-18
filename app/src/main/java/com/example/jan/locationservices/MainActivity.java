@@ -29,10 +29,13 @@ import com.google.android.gms.maps.model.LatLng;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
+import static android.icu.lang.UCharacter.GraphemeClusterBreak.L;
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
@@ -43,7 +46,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private LocationRequest locationRequest;
     private double mylongitude;
     private double mylatitude;
-    private long mytime;
+    private String mytime;
     private Geocoder mylocation;
     private SimpleAdapter addressAdapter;
     public List<Address> myAddress;
@@ -63,7 +66,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         mydb = new DBHelper(this);
 
         locations = new ArrayList<Map<String, String>>();
-
+        mytime = Calendar.getInstance().getTime().toString();
         addressList = (ListView) findViewById(R.id.addressList);
         addresses = mydb.getAllCoords();
         addressAdapter = new SimpleAdapter(this, addresses, R.layout.list_viewadater, from, to);
@@ -280,7 +283,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         Log.d("String", "onLocationChanged: this runs");
         mylatitude = location.getLatitude();
         mylongitude = location.getLongitude();
-        mytime = location.getTime();
         latitudeValue.setText(String.valueOf(mylatitude));
         longitudeValue.setText(String.valueOf(mylongitude));
     }
