@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private SimpleAdapter addressAdapter;
     public List<Address> myAddress;
     private ListView addressList;
-    private Location myLocation;
+    private Location sendLocation;
     private ArrayList<Map<String, String>> addresses;
     String[] from = {"name", "time", "longitude", "latitude", "address", "postal"};
     int[] to = {R.id.addrName, R.id.addrTime, R.id.addrLong, R.id.addrLat, R.id.address, R.id.postal};
@@ -213,9 +213,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     button function to switch to map view
      */
     public void onSwitch(View v) {
-        addresses = mydb.getAllCoords();
         Intent intent = new Intent(this, MapsActivity.class);
-        intent.putExtra("location", addresses);
+        intent.putExtra("location", sendLocation);
         startActivity(intent);
     }
 
@@ -288,7 +287,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     @Override
     public void onLocationChanged(Location location) {
         Log.d("String", "onLocationChanged: this runs");
-        myLocation = location;
+        sendLocation = location;
         mylatitude = location.getLatitude();
         mylongitude = location.getLongitude();
         latitudeValue.setText(String.valueOf(mylatitude));

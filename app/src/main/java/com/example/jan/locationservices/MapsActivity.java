@@ -12,6 +12,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.GeoDataApi;
+import com.google.android.gms.location.places.PlaceDetectionApi;
+import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
@@ -47,7 +51,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         setContentView(R.layout.activity_map);
 
         Intent intent = getIntent();
-        addressList = getIntent().getExtras().getParcelable("location");
+        mylocation = getIntent().getExtras().getParcelable("location");
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -76,17 +81,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap = googleMap;
         mUiSettings = mMap.getUiSettings();
 
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }
-        mMap.setMyLocationEnabled(true);
+//        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//            // TODO: Consider calling
+//            //    ActivityCompat#requestPermissions
+//            // here to request the missing permissions, and then overriding
+//            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+//            //                                          int[] grantResults)
+//            // to handle the case where the user grants the permission. See the documentation
+//            // for ActivityCompat#requestPermissions for more details.
+//            return;
+//        }
+//        mMap.setMyLocationEnabled(true);
 
         // Keep the UI Settings state in sync with the checkboxes.
         mUiSettings.setZoomControlsEnabled(true);
@@ -97,17 +102,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mUiSettings.setTiltGesturesEnabled(true);
         mUiSettings.setRotateGesturesEnabled(true);
 
-//        // Add a marker in Sydney and move the camera
-//        double lat = mylocation.getLatitude();
-//        double lng = mylocation.getLongitude();
-//        LatLng current = new LatLng(lat,lng);
-//
-//        mMap.addMarker(new MarkerOptions().position(current));
-//        mMap.moveCamera(CameraUpdateFactory.newLatLng(current));
-       // updatemarkers();
+        // Add a marker in Sydney and move the camera
+        double lat = mylocation.getLatitude();
+        double lng = mylocation.getLongitude();
+        LatLng current = new LatLng(lat,lng);
+
+        mMap.addMarker(new MarkerOptions().position(current));
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(current));
+        addMarkers();
     }
 
-    private void updatemarkers() {
+
+    private void addMarkers() {
 
         int size = addressList.size();
 

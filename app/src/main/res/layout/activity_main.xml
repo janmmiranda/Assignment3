@@ -95,6 +95,7 @@
             android:id="@+id/switchMap"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:onClick="onSwitch"
             android:text="switch to map" />
     </LinearLayout>
 
