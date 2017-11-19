@@ -38,9 +38,6 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String COORDINATES_COLUMN_LATITUDE = "latitude";
     public static final String COORDINATES_COLUMN_TIME = "time";
 
-
-
-
     public DBHelper(Context context) {
         super(context,DATABASE_NAME,null,2);
         context.deleteDatabase(DATABASE_NAME);

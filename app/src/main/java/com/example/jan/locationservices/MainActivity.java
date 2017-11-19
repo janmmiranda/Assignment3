@@ -14,6 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
@@ -29,12 +30,15 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import static android.icu.lang.UCharacter.GraphemeClusterBreak.L;
 
@@ -55,10 +59,12 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     public List<Address> myAddress;
     private ListView addressList;
     private Location sendLocation;
+    private CheckBox checkBox;
     private ArrayList<Map<String, String>> addresses;
     String[] from = {"name", "time", "longitude", "latitude", "address", "postal"};
     int[] to = {R.id.addrName, R.id.addrTime, R.id.addrLong, R.id.addrLat, R.id.address, R.id.postal};
-    DBHelper mydb;
+    public static DBHelper mydb;
+    public boolean isAuto = false;
     ArrayList<Map<String, String>> locations;
 
 
@@ -76,6 +82,21 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         addressAdapter = new SimpleAdapter(this, addresses, R.layout.list_viewadater, from, to);
         addressList.setAdapter(addressAdapter);
 
+        checkBox = (CheckBox) findViewById(R.id.autoCheck);
+        if(checkBox.isChecked()) {
+            isAuto = true;
+        } else {
+            isAuto = false;
+        }
+        Timer myTimer = new Timer();
+        myTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                autoCheckIn(isAuto);
+            }
+        }, 0, 300000);
+
+
         mylocation = new Geocoder(this, Locale.getDefault());
 
         latitudeValue = (TextView) findViewById(R.id.latVal);
@@ -92,6 +113,15 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         locationRequest.setFastestInterval(5000);
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
+    }
+
+    private void autoCheckIn(Boolean isAuto) {
+        if(isAuto) {
+            EditText et = (EditText) findViewById(R.id.etNewAddress);
+            String name = et.getText().toString();
+            checkIn(name);
+            et.setText("");
+        }
     }
 
     /**
@@ -167,13 +197,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         return shortestId;
     }
 
-    /**
-    button function for checking in the
-    current location
-     */
-    public void onCheckIn(View v) {
-        EditText et = (EditText) findViewById(R.id.etNewAddress);
-        String name = et.getText().toString();
+    private void checkIn(String name){
         Address tempAddress = getAddress();
 
         String address, postal;
@@ -204,9 +228,17 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         addresses = mydb.getAllCoords();
         addressAdapter = new SimpleAdapter(this, addresses, R.layout.list_viewadater, from, to);
         addressList.setAdapter(addressAdapter);
+    }
 
+    /**
+    button function for checking in the
+    current location
+     */
+    public void onCheckIn(View v) {
+        EditText et = (EditText) findViewById(R.id.etNewAddress);
+        String name = et.getText().toString();
+        checkIn(name);
         et.setText("");
-
     }
 
     /**
@@ -287,10 +319,26 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     @Override
     public void onLocationChanged(Location location) {
         Log.d("String", "onLocationChanged: this runs");
+
         sendLocation = location;
         mylatitude = location.getLatitude();
         mylongitude = location.getLongitude();
         latitudeValue.setText(String.valueOf(mylatitude));
         longitudeValue.setText(String.valueOf(mylongitude));
+
+        if(isAuto) {
+            locations = mydb.getAllLocations();
+            int size = locations.size();
+            if (size > 0) {
+                Map<String, String> tempLocation = locations.get(size - 1);
+                double distance = distanceChecker(tempLocation);
+                if(distance > 100) {
+                    EditText et = (EditText) findViewById(R.id.etNewAddress);
+                    String name = et.getText().toString();
+                    checkIn(name);
+                    et.setText("");
+                }
+            }
+        }
     }
 }

@@ -10,7 +10,7 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentTop="true"
         android:text="TextView"
-        android:textAlignment="center" />
+        android:textAlignment="viewStart" />
 
     <TextView
         android:id="@+id/addrName"

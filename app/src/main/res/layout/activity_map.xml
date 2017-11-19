@@ -17,16 +17,19 @@
             android:id="@+id/map"
             android:name="com.google.android.gms.maps.SupportMapFragment"
             android:layout_width="match_parent"
-            android:layout_height="224dp"
+            android:layout_height="453dp"
             android:layout_alignParentStart="true"
-            android:layout_weight="0.97" />
+            android:layout_alignParentTop="true"
+            android:layout_weight="0.87" />
 
-        <Button
-            android:id="@+id/switchBtn"
-            android:layout_width="match_parent"
+        <EditText
+            android:id="@+id/etMapAddress"
+            android:layout_width="414dp"
             android:layout_height="wrap_content"
-            android:onClick="onSwitchMap"
-            android:text="Button" />
-
+            android:layout_alignStart="@+id/checkIN"
+            android:layout_alignTop="@+id/latVal"
+            android:layout_marginStart="13dp"
+            android:hint="Name" />
     </LinearLayout>
+
 </RelativeLayout>

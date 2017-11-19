@@ -91,12 +91,27 @@
             android:layout_width="match_parent"
             android:layout_height="347dp" />
 
-        <Button
-            android:id="@+id/switchMap"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:onClick="onSwitch"
-            android:text="switch to map" />
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/switchMap"
+                android:layout_width="183dp"
+                android:layout_height="wrap_content"
+                android:onClick="onSwitch"
+                android:text="switch to map" />
+
+            <CheckBox
+                android:id="@+id/autoCheck"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.26"
+                android:text="Auto Checkin" />
+
+        </LinearLayout>
+
     </LinearLayout>
 
 </RelativeLayout>
