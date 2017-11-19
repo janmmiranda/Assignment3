@@ -26,8 +26,8 @@
         android:layout_alignBottom="@+id/textViewLat"
         android:layout_marginStart="27dp"
         android:layout_toEndOf="@+id/textViewLat"
-        android:textSize="18sp"
-        android:textAlignment="center"/>
+        android:textAlignment="center"
+        android:textSize="18sp" />
 
     <TextView
         android:id="@+id/textViewLat"
@@ -56,7 +56,7 @@
         android:layout_height="wrap_content"
         android:onClick="onCheckIn"
         android:text="Check In"
-        android:layout_marginEnd="39dp"
+        android:layout_marginEnd="31dp"
         android:layout_below="@+id/etNewAddress"
         android:layout_alignParentEnd="true" />
 
@@ -67,15 +67,15 @@
         android:textSize="18sp"
         android:layout_alignBaseline="@+id/textViewLong"
         android:layout_alignBottom="@+id/textViewLong"
-        android:layout_toEndOf="@+id/latVal" />
+        android:layout_alignStart="@+id/latVal" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="120dp"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
         android:orientation="vertical"
-        android:id="@+id/linearLayout2">
+        android:id="@+id/linearLayout2"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true">
 
     </LinearLayout>
 
@@ -89,7 +89,13 @@
         <ListView
             android:id="@+id/addressList"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="347dp" />
+
+        <Button
+            android:id="@+id/switchMap"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="switch to map" />
     </LinearLayout>
 
 </RelativeLayout>

@@ -154,7 +154,7 @@ public class DBHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor res = db.rawQuery( "select * from coordinates c join location l on l.id = c.idLocation", null);
         res.moveToFirst();
-        String name, longitude, latitude, time, address;
+        String name, longitude, latitude, time, address, postal;
         while(res.isAfterLast() == false) {
             HashMap<String, String> coordinates = new HashMap<String, String>(2);
             name = res.getString(res.getColumnIndex(LOCATION_COLUMN_NAME));
@@ -162,11 +162,13 @@ public class DBHelper extends SQLiteOpenHelper {
             latitude = res.getString(res.getColumnIndex(COORDINATES_COLUMN_LATITUDE));
             time = res.getString(res.getColumnIndex(COORDINATES_COLUMN_TIME));
             address = res.getString(res.getColumnIndex(LOCATION_COLUMN_ADDRESS));
+            postal = res.getString(res.getColumnIndex(LOCATION_COLUMN_POSTAL));
             coordinates.put("name", name);
             coordinates.put("longitude", longitude);
             coordinates.put("latitude", latitude);
             coordinates.put("time", time);
             coordinates.put("address", address);
+            coordinates.put("postal", postal);
             array_List.add(coordinates);
             res.moveToNext();
         }

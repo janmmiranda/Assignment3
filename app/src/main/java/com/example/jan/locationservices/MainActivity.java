@@ -1,6 +1,7 @@
 package com.example.jan.locationservices;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
@@ -37,7 +38,9 @@ import java.util.Map;
 
 import static android.icu.lang.UCharacter.GraphemeClusterBreak.L;
 
-public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
+public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener, LocationListener {
+
 
     TextView latitudeValue;
     TextView longitudeValue;
@@ -51,9 +54,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private SimpleAdapter addressAdapter;
     public List<Address> myAddress;
     private ListView addressList;
+    private Location myLocation;
     private ArrayList<Map<String, String>> addresses;
-    String[] from = {"name", "time", "longitude", "latitude", "address"};
-    int[] to = {R.id.addrName, R.id.addrTime, R.id.addrLong, R.id.addrLat, R.id.address};
+    String[] from = {"name", "time", "longitude", "latitude", "address", "postal"};
+    int[] to = {R.id.addrName, R.id.addrTime, R.id.addrLong, R.id.addrLat, R.id.address, R.id.postal};
     DBHelper mydb;
     ArrayList<Map<String, String>> locations;
 
@@ -66,7 +70,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         mydb = new DBHelper(this);
 
         locations = new ArrayList<Map<String, String>>();
-        mytime = Calendar.getInstance().getTime().toString();
+
         addressList = (ListView) findViewById(R.id.addressList);
         addresses = mydb.getAllCoords();
         addressAdapter = new SimpleAdapter(this, addresses, R.layout.list_viewadater, from, to);
@@ -90,7 +94,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     }
 
-
+    /**
+    Pulls address object from location
+     */
     private Address getAddress() {
         try {
             myAddress = mylocation.getFromLocation(mylatitude, mylongitude, 1);
@@ -103,27 +109,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             return null;
     }
 
-    public double CalculationByDistance(Map coord1) {
-        int Radius = 6371;// radius of earth in Km
-        double lat1 = Math.abs(Double.parseDouble(String.valueOf(coord1.get("latitude"))));
-        double lat2 = Math.abs(mylatitude);
-        double lon1 = Math.abs(Double.parseDouble(String.valueOf(coord1.get("longitude"))));
-        double lon2 = Math.abs(mylongitude);
-
-        double dLat = Math.toRadians(lat2 - lat1);
-        double dLon = Math.toRadians(lon2 - lon1);
-        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
-                + Math.cos(Math.toRadians(lat1))
-                * Math.cos(Math.toRadians(lat2)) * Math.sin(dLon / 2)
-                * Math.sin(dLon / 2);
-        double c = 2 * Math.asin(Math.sqrt(a));
-        double valueResult = Radius * c;
-        double km = valueResult / 1;
-        double meter = valueResult % 1000;
-
-        return  meter;
-    }
-
+    /**
+    Uses Location.distanceBetween() to calculate distances
+    between 2 locations
+     */
     private double distanceChecker(Map coord1) {
         double lat1 = Double.parseDouble(String.valueOf(coord1.get("latitude")));
         double lat2 = mylatitude;
@@ -145,6 +134,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         return (double) results[0];
     }
 
+    /**
+    compares current location with store
+    locations and determines the closest one
+    returns id of closest location
+     */
     private int findShortest (ArrayList<Map<String, String>> locations) {
         int size = locations.size();
         double shortest = Double.MAX_VALUE;
@@ -152,7 +146,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         int tempId = shortestId;
         double temp;
 
-        if(size < 1){
+        if(locations.isEmpty()){
             return -1;
         } else {
             while(size > 0) {
@@ -173,6 +167,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         return shortestId;
     }
 
+    /**
+    button function for checking in the
+    current location
+     */
     public void onCheckIn(View v) {
         EditText et = (EditText) findViewById(R.id.etNewAddress);
         String name = et.getText().toString();
@@ -185,13 +183,13 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         } else {
             address = String.valueOf(tempAddress.getLocality());
             postal = String.valueOf(tempAddress.getAddressLine(0));
-
         }
 
         locations = mydb.getAllLocations();
         String size = String.valueOf(locations.size());
 
         int idDistance = findShortest(locations);
+        mytime = Calendar.getInstance().getTime().toString();
         //Toast.makeText(this, "id is " + idDistance, Toast.LENGTH_LONG).show();
 
         if(idDistance > 0) {
@@ -207,9 +205,18 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         addressAdapter = new SimpleAdapter(this, addresses, R.layout.list_viewadater, from, to);
         addressList.setAdapter(addressAdapter);
 
-
         et.setText("");
 
+    }
+
+    /**
+    button function to switch to map view
+     */
+    public void onSwitch(View v) {
+        addresses = mydb.getAllCoords();
+        Intent intent = new Intent(this, MapsActivity.class);
+        intent.putExtra("location", addresses);
+        startActivity(intent);
     }
 
     @Override
@@ -281,6 +288,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     @Override
     public void onLocationChanged(Location location) {
         Log.d("String", "onLocationChanged: this runs");
+        myLocation = location;
         mylatitude = location.getLatitude();
         mylongitude = location.getLongitude();
         latitudeValue.setText(String.valueOf(mylatitude));
