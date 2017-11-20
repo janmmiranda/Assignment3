@@ -155,7 +155,7 @@ public class MapsActivity extends FragmentActivity
                     postal = String.valueOf(address.getAddressLine(0));
                 }
 
-                mMap.addMarker(new MarkerOptions().position(point));
+                mMap.addMarker(new MarkerOptions().position(point).draggable(true));
                 EditText et = (EditText) findViewById(R.id.etMapAddress);
                 String word = et.getText().toString();
                 mydb.insertLocation(word,String.valueOf(point.latitude),String.valueOf(point.longitude), addressL, postal);

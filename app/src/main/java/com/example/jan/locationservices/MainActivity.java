@@ -75,12 +75,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         setContentView(R.layout.activity_main);
         mydb = new DBHelper(this);
 
-//        locations = new ArrayList<Map<String, String>>();
-//
-//        addressList = (ListView) findViewById(R.id.addressList);
-//        addresses = mydb.getAllCoords();
-//        addressAdapter = new SimpleAdapter(this, addresses, R.layout.list_viewadater, from, to);
-//        addressList.setAdapter(addressAdapter);
         updateList();
 
         checkBox = (CheckBox) findViewById(R.id.autoCheck);
@@ -108,7 +102,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             public void run() {
                 autoCheckIn(isAuto);
             }
-        }, 0, 10000);
+        }, 0, 300000);
 
 
         mylocation = new Geocoder(this, Locale.getDefault());
@@ -150,7 +144,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 addressList.setAdapter(addressAdapter);
 
                 et.setText("");
-
             }
         });
     }
@@ -191,7 +184,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             Log.d("error", "Error is " + e);
         }
 
-
         return (double) results[0];
     }
 
@@ -217,7 +209,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 if (temp < shortest) {
                     shortest = temp;
                     tempId = Integer.parseInt(tempLocation.get("id"));
-
                 }
                 size--;
             }
@@ -241,11 +232,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         }
 
         locations = mydb.getAllLocations();
-        String size = String.valueOf(locations.size());
-
         int idDistance = findShortest(locations);
         mytime = Calendar.getInstance().getTime().toString();
-        //Toast.makeText(this, "id is " + idDistance, Toast.LENGTH_LONG).show();
 
         if(idDistance > 0) {
             mydb.insertCD(String.valueOf(idDistance),String.valueOf(mylongitude),String.valueOf(mylatitude),String.valueOf(mytime));
@@ -265,12 +253,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         EditText et = (EditText) findViewById(R.id.etNewAddress);
         String name = et.getText().toString();
         checkIn(name);
-
-//        addresses = mydb.getAllCoords();
-//        addressAdapter = new SimpleAdapter(this, addresses, R.layout.list_viewadater, from, to);
-//        addressList.setAdapter(addressAdapter);
-//
-//        et.setText("");
         updateList();
     }
 
@@ -341,7 +323,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     @Override
     public void onConnectionSuspended(int i) {
         Log.d("String", "onConnectionSuspended: this runs");
-
     }
 
     @Override
@@ -369,7 +350,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     EditText et = (EditText) findViewById(R.id.etNewAddress);
                     String name = et.getText().toString();
                     checkIn(name);
-                    et.setText("");
+                    updateList();
                 }
             }
         }
