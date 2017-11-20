@@ -75,26 +75,40 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         setContentView(R.layout.activity_main);
         mydb = new DBHelper(this);
 
-        locations = new ArrayList<Map<String, String>>();
-
-        addressList = (ListView) findViewById(R.id.addressList);
-        addresses = mydb.getAllCoords();
-        addressAdapter = new SimpleAdapter(this, addresses, R.layout.list_viewadater, from, to);
-        addressList.setAdapter(addressAdapter);
+//        locations = new ArrayList<Map<String, String>>();
+//
+//        addressList = (ListView) findViewById(R.id.addressList);
+//        addresses = mydb.getAllCoords();
+//        addressAdapter = new SimpleAdapter(this, addresses, R.layout.list_viewadater, from, to);
+//        addressList.setAdapter(addressAdapter);
+        updateList();
 
         checkBox = (CheckBox) findViewById(R.id.autoCheck);
+        checkBox.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(checkBox.isChecked()) {
+                    isAuto = true;
+                } else {
+                    isAuto = false;
+                }
+                Log.d("asd", "isChecked: " + isAuto);
+            }
+        });
         if(checkBox.isChecked()) {
             isAuto = true;
         } else {
             isAuto = false;
         }
+        Log.d("asd", "isChecked: " + isAuto);
+
         Timer myTimer = new Timer();
         myTimer.schedule(new TimerTask() {
             @Override
             public void run() {
                 autoCheckIn(isAuto);
             }
-        }, 0, 300000);
+        }, 0, 10000);
 
 
         mylocation = new Geocoder(this, Locale.getDefault());
@@ -120,8 +134,25 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             EditText et = (EditText) findViewById(R.id.etNewAddress);
             String name = et.getText().toString();
             checkIn(name);
-            et.setText("");
+            updateList();
         }
+    }
+
+    private void updateList(){
+        MainActivity.this.runOnUiThread(new Runnable() {
+            public void run() {
+                Log.d("UI thread", "I am the UI thread");
+                EditText et = (EditText) findViewById(R.id.etNewAddress);
+
+                addressList = (ListView) findViewById(R.id.addressList);
+                addresses = mydb.getAllCoords();
+                addressAdapter = new SimpleAdapter(getBaseContext(), addresses, R.layout.list_viewadater, from, to);
+                addressList.setAdapter(addressAdapter);
+
+                et.setText("");
+
+            }
+        });
     }
 
     /**
@@ -224,10 +255,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             String newSize = String.valueOf(locations.size());
             mydb.insertCD(newSize, String.valueOf(mylongitude), String.valueOf(mylatitude), String.valueOf(mytime));
         }
-
-        addresses = mydb.getAllCoords();
-        addressAdapter = new SimpleAdapter(this, addresses, R.layout.list_viewadater, from, to);
-        addressList.setAdapter(addressAdapter);
     }
 
     /**
@@ -238,7 +265,13 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         EditText et = (EditText) findViewById(R.id.etNewAddress);
         String name = et.getText().toString();
         checkIn(name);
-        et.setText("");
+
+//        addresses = mydb.getAllCoords();
+//        addressAdapter = new SimpleAdapter(this, addresses, R.layout.list_viewadater, from, to);
+//        addressList.setAdapter(addressAdapter);
+//
+//        et.setText("");
+        updateList();
     }
 
     /**

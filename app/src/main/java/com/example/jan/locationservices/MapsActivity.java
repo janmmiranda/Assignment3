@@ -38,7 +38,8 @@ import java.util.Map;
 import static android.icu.lang.UCharacter.GraphemeClusterBreak.L;
 import static com.example.jan.locationservices.R.id.map;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
+public class MapsActivity extends FragmentActivity
+        implements OnMapReadyCallback {
 
     private GoogleMap mMap;
     private UiSettings mUiSettings;
@@ -46,8 +47,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Location mylocation;
     private ArrayList<Map<String, String>> addressList;
     private static final String KEY_LOCATION = "location";
+    LatLng current;
     DBHelper mydb;
-    /**
+    /*
      * Flag indicating whether a requested permission has been denied after returning in
      * {@link #onRequestPermissionsResult(int, String[], int[])}.
      */
@@ -112,12 +114,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if(mylocation != null) {
             double lat = mylocation.getLatitude();
             double lng = mylocation.getLongitude();
-            LatLng current = new LatLng(lat,lng);
+            current = new LatLng(lat,lng);
 
             mMap.addMarker(new MarkerOptions().position(current));
             mMap.moveCamera(CameraUpdateFactory.newLatLng(current));
         }
-
+        googleMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
+            @Override
+            public boolean onMyLocationButtonClick() {
+                mMap.moveCamera(CameraUpdateFactory.newLatLng(current));
+                return false;
+            }
+        });
 
         addMarkers();
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
@@ -177,5 +185,4 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             super.onSaveInstanceState(outState);
         }
     }
-
 }
